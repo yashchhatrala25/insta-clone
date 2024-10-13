@@ -10,15 +10,21 @@ import {
 import useUserProfileStore from "../../store/userProfileStore";
 import useAuthStore from "../../store/authStore";
 import { auth } from "../../firebase/firebase";
-import EditProfile from './EditProfile';
+import EditProfile from "./EditProfile";
+import useFollowUser from "../../hooks/useFollowUser";
 
 const ProfileHeader = () => {
   const { userProfile } = useUserProfileStore();
   const authUser = useAuthStore((state) => state.user);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isFollowing, isUpdating, handleFollowUser } = useFollowUser(
+    userProfile?.uid
+  );
+
   const visitingOwnProfileAndAuth =
     auth && authUser.username === userProfile.username;
-  const visitingAnotherProfileAndAuth = auth && authUser.username !== userProfile.username;
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const visitingAnotherProfileAndAuth =
+    auth && authUser.username !== userProfile.username;
 
   return (
     <Flex
@@ -66,8 +72,10 @@ const ProfileHeader = () => {
                 color={"white"}
                 _hover={{ bg: "blue.600" }}
                 size={{ base: "xs", md: "sm" }}
+                onClick={handleFollowUser}
+                isLoading={isUpdating}
               >
-                Follow
+                {isFollowing ? "Unfollow" : "Follow"}
               </Button>
             </Flex>
           )}
